@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="master.css" />
+
+    <title>ChatConn</title>
+  </head>
+
+  <body>
+    <h1>Chat</h1>
+    <label id="label-nickname" for="nickname">Your Name :</label>
+    <br />
+    <input type="text" id="nickname" placeholder="Enter Your Name" />
+    <hr />
+    <button id="connect-btn">Start Chat</button>
+    <br />
+    <textarea
+      name=""
+      id="chat-display"
+      cols="50"
+      rows="20"
+      disabled="true"
+    ></textarea>
+    <br />
+    <input id="chat-input" type="text" placeholder="Enter Message..." />
+    <button id="send-btn">Send</button>
+    <div id="users"></div>
+    <script>
+      var element = function(id) {
+        return document.getElementById(id);
+      };
+
+      var ws;
+      var cd = element("chat-display");
+      var nn = element("nickname");
+
+      element("connect-btn").addEventListener("click", function() {
+        if (nn.value.trim() != "") {
+          ws = new WebSocket("ws://127.0.0.1:8081");
+          ws.addEventListener("open", function(e) {
+            ws.send(
+              JSON.stringify({
+                type: "register",
+                message: nn.value.trim()
+              })
+            );
+
+            element("connect-btn").style.display = "none";
+            element("nickname").style.display = "none";
+            element(
+              "label-nickname"
+            ).innerHTML = `Hello ${nn.value.trim()} You Can Start Your Chat`;
+            nn.value = "";
+          });
+
+          ws.addEventListener("message", function(e) {
+            cd.value += "\n" + e.data;
+            cd.scrollTop = cd.scrollHeight;
+          });
+        } else {
+          alert("Please Enter Your Nickname");
+        }
+      });
+
+      var sendBtn = element("send-btn");
+      var chatInput = element("chat-input");
+
+      chatInput.addEventListener("keyup", function(e) {
+        var text = chatInput.value.trim();
+        if (e.key == "Enter" && text != "") {
+          ws.send(
+            JSON.stringify({
+              type: "text",
+              message: text
+            })
+          );
+          chatInput.value = "";
+        }
+      });
+
+      sendBtn.addEventListener("click", function(e) {
+        var text = chatInput.value.trim();
+        if (text != "") {
+          ws.send(
+            JSON.stringify({
+              type: "text",
+              message: text
+            })
+          );
+          chatInput.value = "";
+        }
+      });
+    </script>
+  </body>
+</html>
