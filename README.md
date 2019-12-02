@@ -1,4 +1,5 @@
 # ChatApi---WebSocket
-ChatAPI - WebSocket
-## run node index.js on localhost:8080
+
+## run node index.js 
+### open muliple browser tabs on port 8080 to test it.
 
